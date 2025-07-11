@@ -551,6 +551,7 @@ class VulkanBackend final : public ::executorch::runtime::BackendInterface {
 
     ComputeGraph* compute_graph = static_cast<ComputeGraph*>(handle);
 
+    // add comment
     const size_t num_inputs = compute_graph->inputs().size();
     bool should_propagate_resize = false;
     for (size_t i = 0; i < num_inputs; i++) {
