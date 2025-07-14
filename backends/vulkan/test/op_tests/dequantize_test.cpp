@@ -745,21 +745,19 @@ void test_vulkan_dequantize_per_tensor_tensor(
 }
 
 // Wrapper function to test both buffer and texture storage types
-void test_vulkan_dequantize_per_channel(
+void test_vulkan_dequantize_per_tensor_tensor(
     const std::vector<int>& input_sizes,
-    const std::vector<float>& scales,
-    const std::vector<int>& zero_points,
-    int64_t axis,
+    float scale,
+    int zero_point,
     int64_t quant_min,
     int64_t quant_max,
     at::ScalarType dtype,
     at::ScalarType out_dtype) {
   // Test with buffer storage
-  test_vulkan_dequantize_per_channel_impl(
+  test_vulkan_dequantize_per_tensor_tensor_impl(
       input_sizes,
-      scales,
-      zero_points,
-      axis,
+      scale,
+      zero_point,
       quant_min,
       quant_max,
       dtype,
@@ -774,11 +772,10 @@ void test_vulkan_dequantize_per_channel(
   }
 
   // Test with texture storage
-  test_vulkan_dequantize_per_channel_impl(
+  test_vulkan_dequantize_per_tensor_tensor_impl(
       input_sizes,
-      scales,
-      zero_points,
-      axis,
+      scale,
+      zero_point,
       quant_min,
       quant_max,
       dtype,
