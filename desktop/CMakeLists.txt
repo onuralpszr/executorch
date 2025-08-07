@@ -23,7 +23,7 @@ if(NOT EXECUTORCH_ROOT)
 endif()
 
 include(${EXECUTORCH_ROOT}/tools/cmake/Utils.cmake)
-set(_common_compile_options -Wno-deprecated-declarations -fPIC -Wall -Werror)
+set(_common_compile_options -Wno-deprecated-declarations -fPIC -Wall)
 set(_common_include_directories ${EXECUTORCH_ROOT}/..)
 
 find_package_torch()
