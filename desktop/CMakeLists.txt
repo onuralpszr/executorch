@@ -26,15 +26,34 @@ include(${EXECUTORCH_ROOT}/tools/cmake/Utils.cmake)
 set(_common_compile_options -Wno-deprecated-declarations -fPIC -Wall)
 set(_common_include_directories ${EXECUTORCH_ROOT}/..)
 
-find_package_torch()
+set(_limited_runtime_sources runtime/limited/shim_tensor_impl.cpp)
+add_library(limited_runtime STATIC ${_limited_runtime_sources})
+target_include_directories(
+  limited_runtime
+  PUBLIC
+    $<BUILD_INTERFACE:${EXECUTORCH_ROOT}>
+    $<INSTALL_INTERFACE:include>
+)
 
-add_executable(executorch_desktop runtime/full/main.cpp)
+target_compile_options(limited_runtime PUBLIC -fexceptions -frtti -fPIC)
+# Ensure symbols are exported properly
+target_link_options(limited_runtime PUBLIC -Wl)
+target_link_libraries(
+  limited_runtime
+  PUBLIC
+    extension_tensor
+)
+
+find_package_torch_headers()
+
+add_executable(executorch_desktop runtime/runner.cpp)
 target_compile_options(executorch_desktop PUBLIC ${_common_compile_options})
 target_include_directories(
   executorch_desktop PUBLIC ${_common_include_directories}
+  ${TORCH_INCLUDE_DIRS}
 )
 target_link_libraries(
   executorch_desktop
   gflags
-  torch
+  limited_runtime
 )
