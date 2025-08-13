@@ -10,7 +10,6 @@
 #include <torch/csrc/stable/tensor.h>
 #include <unordered_map>
 #include <vector>
-#include <executorch/runtime/core/exec_aten/exec_aten.h>
 #include <iostream>
 
 using torch::stable::Tensor;
