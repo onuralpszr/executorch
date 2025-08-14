@@ -51,6 +51,7 @@ using executorch::runtime::etensor::Tensor;
 using executorch::runtime::Span;
 
 extern "C" {
+  
 using AtenTensorHandle = Tensor*;
 
 // TODO: We should get a proper one
@@ -242,7 +243,7 @@ __attribute__((__visibility__("default"))) int32_t aoti_torch_dtype_float32() {
 }
 
 AOTITorchError aoti_torch_delete_tensor_object(AtenTensorHandle tensor) {
-  std::cout << "Deleting " << tensor << std::endl;
+  std::cout << "Deleting " << tensor << " in the limited runtime" << std::endl;
   for (auto it = tensors.begin(); it != tensors.end(); ++it) {
     if (it->get() == tensor) {
       tensors.erase(it);
@@ -250,18 +251,6 @@ AOTITorchError aoti_torch_delete_tensor_object(AtenTensorHandle tensor) {
     }
   }
   return Error::Ok;
-}
-AOTITorchError aoti_torch_create_tensor_from_blob(
-    void* data,
-    int64_t ndim,
-    const int64_t* sizes_ptr,
-    const int64_t* strides_ptr,
-    int64_t storage_offset,
-    int32_t dtype,
-    int32_t device_type,
-    int32_t device_index,
-    AtenTensorHandle* ret_new_tensor) {
-  throw std::runtime_error("Should never create from blob");
 }
 
 AOTITorchError aoti_torch_empty_strided(
@@ -286,7 +275,7 @@ AOTITorchError aoti_torch_empty_strided(
   int64_t nbytes = numel * 4;
 
   if (device_type == 0) { // cpu
-    std::cout << "Allocating " << nbytes << " bytes on CPU " << std::endl;
+    // std::cout << "Allocating " << nbytes << " bytes on CPU " << std::endl;
     ptr = malloc(nbytes);
     if (ptr == nullptr) {
       throw std::runtime_error("Failed to call malloc");
@@ -295,8 +284,8 @@ AOTITorchError aoti_torch_empty_strided(
     throw std::runtime_error(
         "Need to implement empty_strided for non-CUDA non-CPU");
   }
-  std::cout << "Allocated " << nbytes << " bytes at " << ptr << ", sizes_ptr "
-            << sizes_ptr << std::endl;
+  // std::cout << "Allocated " << nbytes << " bytes at " << ptr << ", sizes_ptr "
+  //           << sizes_ptr << std::endl;
 
   // ETensor sizes
   std::vector<int32_t> sizes(ndim);
@@ -309,12 +298,34 @@ AOTITorchError aoti_torch_empty_strided(
   // Store the tensor
   tensors.insert(tensor);
 
-  std::cout << "sizes.data(): " << sizes.data()
-            << ", tensor->sizes().data(): " << tensor->sizes().data()
-            << std::endl;
-  std::cout << "Size[0] of tensor " << tensor.get() << " is "
-            << tensor->sizes()[0] << std::endl;
+  // std::cout << "sizes.data(): " << sizes.data()
+  //           << ", tensor->sizes().data(): " << tensor->sizes().data()
+  //           << std::endl;
+  // std::cout << "Size[0] of tensor " << tensor.get() << " is "
+  //           << tensor->sizes()[0] << std::endl;
   *ret_new_tensor = tensor.get();
+  return Error::Ok;
+}
+
+AOTITorchError aoti_torch_create_tensor_from_blob(
+    void* data,
+    int64_t ndim,
+    const int64_t* sizes_ptr,
+    const int64_t* strides_ptr,
+    int64_t storage_offset,
+    int32_t dtype,
+    int32_t device_type,
+    int32_t device_index,
+    AtenTensorHandle* ret_new_tensor) {
+  aoti_torch_empty_strided(
+      ndim,
+      sizes_ptr,
+      strides_ptr,
+      dtype,
+      device_type,
+      device_index,
+      ret_new_tensor);
+  (*ret_new_tensor)->set_data(data);
   return Error::Ok;
 }
 
