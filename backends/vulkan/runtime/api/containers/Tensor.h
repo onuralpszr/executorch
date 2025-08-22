@@ -246,7 +246,7 @@ class vTensor final {
     UniformData(
         const size_t numel_ll,
         const std::vector<int64_t>& sizes,
-        const std::vector<int64_t>& whcn_dim_order,
+        const std::vector<int64_t>& dim_order,
         const std::vector<int64_t>& strides,
         const utils::uvec3& limits);
 
