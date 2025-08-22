@@ -715,17 +715,17 @@ uint32_t vTensor::UniformData::write_attribute(
 }
 
 vTensor::BufferMetadata::BufferMetadata(
-    std::vector<int64_t> src_sizes,
-    std::vector<int64_t> src_dim_order,
-    std::vector<int64_t> src_strides,
+    std::vector<int64_t>& src_sizes,
+    std::vector<int64_t>& src_dim_order,
+    std::vector<int64_t>& src_strides,
     size_t src_numel) {
   update(src_sizes, src_dim_order, src_strides, src_numel);
 }
 
 void vTensor::BufferMetadata::update(
-    std::vector<int64_t> src_sizes,
-    std::vector<int64_t> src_dim_order,
-    std::vector<int64_t> src_strides,
+    std::vector<int64_t>& src_sizes,
+    std::vector<int64_t>& src_dim_order,
+    std::vector<int64_t>& src_strides,
     size_t src_numel) {
   int32_t fixed_ndim = utils::safe_downcast<int32_t>(kTensorDimLimit);
 

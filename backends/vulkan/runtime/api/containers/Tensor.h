@@ -248,7 +248,7 @@ class vTensor final {
     UniformData(
         const size_t numel_ll,
         const std::vector<int64_t>& sizes,
-        const std::vector<int64_t>& whcn_dim_order,
+        const std::vector<int64_t>& dim_order,
         const std::vector<int64_t>& strides,
         const utils::uvec3& limits);
 
@@ -272,15 +272,15 @@ class vTensor final {
     uint32_t numel;
 
     BufferMetadata(
-        std::vector<int64_t> sizes,
-        std::vector<int64_t> dim_order,
-        std::vector<int64_t> strides,
+        std::vector<int64_t>& sizes,
+        std::vector<int64_t>& dim_order,
+        std::vector<int64_t>& strides,
         size_t numel);
 
     void update(
-        std::vector<int64_t> sizes,
-        std::vector<int64_t> dim_order,
-        std::vector<int64_t> strides,
+        std::vector<int64_t>& sizes,
+        std::vector<int64_t>& dim_order,
+        std::vector<int64_t>& strides,
         size_t numel);
   };
 
@@ -355,7 +355,7 @@ class vTensor final {
   ParamsBuffer uniforms_;
 
   /*
-   * TODO: explain
+   * Used to store data for BufferMetadata to pass to shaders as buffer_meta_ubo
    */
   ParamsBuffer buffer_meta_;
 
