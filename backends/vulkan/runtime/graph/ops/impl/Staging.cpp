@@ -18,8 +18,6 @@
 #include <executorch/backends/vulkan/runtime/graph/ops/impl/utils/DimUtils.h>
 #include <executorch/backends/vulkan/runtime/graph/ops/impl/utils/TensorUtils.h>
 
-#include <iostream>
-
 namespace vkcompute {
 
 void add_staging_to_tensor_node(

@@ -704,7 +704,8 @@ std::vector<T> flip_and_unsqueeze(
     const size_t numel,
     const int32_t fixed_ndim = -1) {
   const size_t ndim = tensor_metadata.size();
-  size_t ndim_up4 = utils::align_up_4(tensor_metadata.size());
+  size_t ndim_up4 =
+      std::max(utils::align_up_4(tensor_metadata.size()), size_t(4));
 
   if (fixed_ndim > 0) {
     VK_CHECK_COND(fixed_ndim >= ndim);
