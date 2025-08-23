@@ -295,16 +295,17 @@ int32_t create_hashed_layout(
 }
 
 size_t calculate_max_ubo_nbytes(
-    const size_t nbytes_per_ubo,
+    const size_t min_nbytes_per_ubo,
     const utils::StorageType storage_type) {
-  // For texture backed tensors, the metadata fields needed are:
-  // sizes, logical limits
-  size_t max_metadata_field_count = 2u;
+  size_t ivec4_ubo_nbytes = utils::align_up(size_t(16), min_nbytes_per_ubo);
+  size_t uvec3_ubo_nbytes = utils::align_up(size_t(12), min_nbytes_per_ubo);
+  size_t int32_ubo_nbytes = utils::align_up(size_t(4), min_nbytes_per_ubo);
   if (storage_type == utils::kBuffer) {
     // sizes, strides, dim order, numel
-    max_metadata_field_count = 4u;
+    return 3 * ivec4_ubo_nbytes + int32_ubo_nbytes;
   }
-  return max_metadata_field_count * nbytes_per_ubo;
+  // sizes, logical limits
+  return ivec4_ubo_nbytes + uvec3_ubo_nbytes;
 }
 
 //
@@ -835,7 +836,7 @@ const vkapi::BufferBindInfo vTensor::numel_ubo() {
 }
 
 const vkapi::BufferBindInfo vTensor::buffer_meta_ubo() {
-  size_t ubo_nbytes = std::max(sizeof(BufferMetadata), min_nbytes_per_ubo_);
+  size_t ubo_nbytes = sizeof(BufferMetadata);
   if (!buffer_meta_.buffer()) {
     BufferMetadata data(sizes_, dim_order_, strides_, numel_);
     buffer_meta_ = ParamsBuffer(storage_->context_, data);
