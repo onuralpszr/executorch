@@ -847,7 +847,7 @@ const vkapi::BufferBindInfo vTensor::numel_ubo() {
 }
 
 const vkapi::BufferBindInfo vTensor::buffer_meta_ubo() {
-  size_t ubo_nbytes = std::min(sizeof(BufferMetadata), min_nbytes_per_ubo_);
+  size_t ubo_nbytes = std::max(sizeof(BufferMetadata), min_nbytes_per_ubo_);
   if (!buffer_meta_.buffer()) {
     BufferMetadata data(sizes_, dim_order_, strides_, numel_);
     buffer_meta_ = ParamsBuffer(storage_->context_, data);
