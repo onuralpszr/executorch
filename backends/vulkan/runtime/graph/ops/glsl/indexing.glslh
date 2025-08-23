@@ -187,7 +187,7 @@ void printTensorIndex(const TensorIndex tidx) {
 
 void printBufferMetadata(const BufferMetadata meta) {
     debugPrintfEXT(
-        "BufferMetadata: ndim=%u numel=%u\\n  sizes=[%u %u %u %u %u %u %u %u]\\n  dim_order=[%u %u %u %u %u %u %u %u]\\n strides=[%u %u %u %u %u %u %u %u]\\n",
+        "BufferMetadata: ndim=%u numel=%u\\n  sizes=[%u %u %u %u %u %u %u %u]\\n  dim_order=[%u %u %u %u %u %u %u %u]\\n  strides=[%u %u %u %u %u %u %u %u]\\n",
         meta.ndim_numel[0], meta.ndim_numel[1],
         meta.sizes[0][0], meta.sizes[0][1], meta.sizes[0][2], meta.sizes[0][3],
         meta.sizes[1][1], meta.sizes[1][1], meta.sizes[1][2], meta.sizes[1][3],
