@@ -521,7 +521,7 @@ class vTensor final {
     if (!uniforms_.buffer()) {
       uniforms_ = ParamsBuffer(storage_->context_, max_ubo_nbytes_, true);
     }
-    size_t ubo_nbytes = std::max(sizeof(T), min_nbytes_per_ubo_);
+    size_t ubo_nbytes = utils::align_up(sizeof(data), min_nbytes_per_ubo_);
     if (*param_buffer_offset == kUniformOffsetUnset) {
       VK_CHECK_COND(
           (uniforms_size_ + ubo_nbytes) <= max_ubo_nbytes_,
