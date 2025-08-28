@@ -119,6 +119,32 @@ void aoti_torch_grad_mode_set_enabled(bool enabled) {
   }
 }
 
+#define AOTI_TORCH_DTYPE_IMPL(dtype, stype) \
+  int32_t aoti_torch_dtype_##dtype() {      \
+    return (int32_t)executorch::runtime::etensor::ScalarType::stype; \
+  }
+
+AOTI_TORCH_DTYPE_IMPL(float8_e5m2, Float8_e5m2)
+AOTI_TORCH_DTYPE_IMPL(float8_e4m3fn, Float8_e4m3fn)
+AOTI_TORCH_DTYPE_IMPL(float8_e5m2fnuz, Float8_e5m2fnuz)
+AOTI_TORCH_DTYPE_IMPL(float8_e4m3fnuz, Float8_e4m3fnuz)
+AOTI_TORCH_DTYPE_IMPL(bfloat16, BFloat16)
+AOTI_TORCH_DTYPE_IMPL(float16, Half)
+AOTI_TORCH_DTYPE_IMPL(float32, Float)
+AOTI_TORCH_DTYPE_IMPL(float64, Double)
+AOTI_TORCH_DTYPE_IMPL(uint8, Byte)
+AOTI_TORCH_DTYPE_IMPL(uint16, UInt16)
+AOTI_TORCH_DTYPE_IMPL(uint32, UInt32)
+AOTI_TORCH_DTYPE_IMPL(uint64, UInt64)
+AOTI_TORCH_DTYPE_IMPL(int8, Char)
+AOTI_TORCH_DTYPE_IMPL(int16, Short)
+AOTI_TORCH_DTYPE_IMPL(int32, Int)
+AOTI_TORCH_DTYPE_IMPL(int64, Long)
+AOTI_TORCH_DTYPE_IMPL(bool, Bool)
+AOTI_TORCH_DTYPE_IMPL(complex32, ComplexHalf)
+AOTI_TORCH_DTYPE_IMPL(complex64, ComplexFloat)
+AOTI_TORCH_DTYPE_IMPL(complex128, ComplexDouble)
+
 AOTITorchError aoti_torch_get_dim(
     AtenTensorHandle tensor,
     int64_t* ret_dim) {
@@ -237,11 +263,6 @@ aoti_torch_device_type_cuda() {
   return 1;
 }
 
-__attribute__((__visibility__("default"))) int32_t aoti_torch_dtype_float32() {
-  // Let assume the dtype here is all we will support
-  return 6;
-}
-
 AOTITorchError aoti_torch_delete_tensor_object(AtenTensorHandle tensor) {
   std::cout << "Deleting " << tensor << " in the limited runtime" << std::endl;
   bool found = false;
@@ -253,7 +274,7 @@ AOTITorchError aoti_torch_delete_tensor_object(AtenTensorHandle tensor) {
     }
   }
   if (!found) {
-    std::cout << "Tensor " << tensor << " not found in the limited runtime";
+    std::cout << "Tensor " << tensor << " not found in the limited runtime" << std::endl;
     delete tensor;
   }
   return Error::Ok;

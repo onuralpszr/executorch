@@ -12,7 +12,7 @@
 #include <torch/csrc/stable/tensor.h>
 #include <unordered_map>
 #include <vector>
-#include <torch/csrc/stable/stableivalue_conversions.h>
+#include <torch/csrc/stable/library.h>
 #include <iostream>
 
 using torch::stable::Tensor;
@@ -46,12 +46,13 @@ int32_t main(int32_t argc, char** argv) {
     Tensor x(get_tensor(&data));
     std::cout << "Input Tensor, dim: " << x.dim() << " data: " << ((float*)x.data_ptr())[0] << std::endl;
 
-    torch::stable::Module m(FLAGS_package_path, FLAGS_model_name);
+    executorch::desktop::Module m(FLAGS_package_path, FLAGS_model_name);
 
     std::vector<TypedStableIValue> args;
-    args.push_back(TypedStableIValue(from(x.get()), StableIValueTag::Tensor)); // TODO make from(Stable::Tensor) work with ET tensor shim
+    args.push_back(TypedStableIValue{reinterpret_cast<StableIValue>(x.get()), StableIValueTag::Tensor}); // TODO make from(Stable::Tensor) work with ET tensor shim
     std::vector<TypedStableIValue> out = m.forward_flattened(args);
-    std::cout << "Output Tensor, dim: " << out.dim() << " data: " << ((float*)out.data_ptr())[0] << std::endl;
+    auto out_tensor = Tensor(reinterpret_cast<AtenTensorHandle>(out[0].val));
+    std::cout << "Output Tensor, dim: " << out_tensor.dim() << " data: " << ((float*)out_tensor.data_ptr())[0] << std::endl;
 
     return 0;
 }
