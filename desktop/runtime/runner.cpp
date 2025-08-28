@@ -49,7 +49,7 @@ int32_t main(int32_t argc, char** argv) {
     executorch::desktop::Module m(FLAGS_package_path, FLAGS_model_name);
 
     std::vector<TypedStableIValue> args;
-    args.push_back(TypedStableIValue{from(x), StableIValueTag::Tensor}); // TODO make from(Stable::Tensor) work with ET tensor shim
+    args.push_back(TypedStableIValue{from(x), StableIValueTag::Tensor});
     std::vector<TypedStableIValue> out = m.forward_flattened(args);
     torch::stable::Tensor out_tensor = to<torch::stable::Tensor>(out[0].val);
     std::cout << "Output Tensor, dim: " << out_tensor.dim() << " data: " << ((float*)out_tensor.data_ptr())[0] << std::endl;
