@@ -42,16 +42,16 @@ AtenTensorHandle get_tensor(void* data) {
 int32_t main(int32_t argc, char** argv) {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
 
-    float data = 1.0f;
-    Tensor x(get_tensor(&data));
+    float data[] = {1.0f, 1.0f, 1.0f,1.0f };
+    Tensor x(get_tensor(data));
     std::cout << "Input Tensor, dim: " << x.dim() << " data: " << ((float*)x.data_ptr())[0] << std::endl;
 
     executorch::desktop::Module m(FLAGS_package_path, FLAGS_model_name);
 
     std::vector<TypedStableIValue> args;
-    args.push_back(TypedStableIValue{reinterpret_cast<StableIValue>(x.get()), StableIValueTag::Tensor}); // TODO make from(Stable::Tensor) work with ET tensor shim
+    args.push_back(TypedStableIValue{from(x), StableIValueTag::Tensor}); // TODO make from(Stable::Tensor) work with ET tensor shim
     std::vector<TypedStableIValue> out = m.forward_flattened(args);
-    auto out_tensor = Tensor(reinterpret_cast<AtenTensorHandle>(out[0].val));
+    torch::stable::Tensor out_tensor = to<torch::stable::Tensor>(out[0].val);
     std::cout << "Output Tensor, dim: " << out_tensor.dim() << " data: " << ((float*)out_tensor.data_ptr())[0] << std::endl;
 
     return 0;

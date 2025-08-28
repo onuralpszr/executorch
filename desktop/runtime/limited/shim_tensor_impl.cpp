@@ -152,6 +152,13 @@ AOTITorchError aoti_torch_get_dim(
   return Error::Ok;
 }
 
+AOTITorchError aoti_torch_new_tensor_handle(
+    AtenTensorHandle orig_handle,
+    AtenTensorHandle* new_handle) {
+  *new_handle = new Tensor(orig_handle->unsafeGetTensorImpl());
+  return Error::Ok;
+}
+
 AOTITorchError aoti_torch_get_data_ptr(
     AtenTensorHandle tensor,
     void** ret_data_ptr) {
