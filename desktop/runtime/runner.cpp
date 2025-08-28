@@ -12,6 +12,7 @@
 #include <torch/csrc/stable/tensor.h>
 #include <unordered_map>
 #include <vector>
+#include <torch/csrc/stable/stableivalue_conversions.h>
 #include <iostream>
 
 using torch::stable::Tensor;
@@ -40,20 +41,16 @@ AtenTensorHandle get_tensor(void* data) {
 
 int32_t main(int32_t argc, char** argv) {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
-    const char* package_path = FLAGS_package_path.c_str();
-    const char* model_name = FLAGS_model_name.c_str();
-    int64_t package_path_len = strlen(package_path);
-    int64_t model_name_len = strlen(model_name);
 
     float data = 1.0f;
     Tensor x(get_tensor(&data));
     std::cout << "Input Tensor, dim: " << x.dim() << " data: " << ((float*)x.data_ptr())[0] << std::endl;
 
-    ModuleHandle module_ptr;
-    AOTITorchError err = torch_load_module_from_file(package_path, package_path_len, model_name, model_name_len, &module_ptr);
-    (void)err;
-    torch::stable::Module m(module_ptr);
-    auto out = m.forward_flattened(x);
+    torch::stable::Module m(FLAGS_package_path, FLAGS_model_name);
+
+    std::vector<TypedStableIValue> args;
+    args.push_back(TypedStableIValue(from(x.get()), StableIValueTag::Tensor)); // TODO make from(Stable::Tensor) work with ET tensor shim
+    std::vector<TypedStableIValue> out = m.forward_flattened(args);
     std::cout << "Output Tensor, dim: " << out.dim() << " data: " << ((float*)out.data_ptr())[0] << std::endl;
 
     return 0;

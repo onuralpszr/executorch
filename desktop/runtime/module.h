@@ -4,11 +4,10 @@
 #include <torch/csrc/stable/tensor.h>
 #include <torch/headeronly/util/Exception.h>
 #include <torch/headeronly/util/shim_utils.h>
-#include <executorch/desktop/runtime/module_shim.h>
-#include <climits>
+#include <torch/csrc/executorch/shim/module_shim.h>
 #include <memory>
 
-namespace torch::stable {
+namespace torch::executorch::experimental {
 
 class Module {
  private:
@@ -16,19 +15,20 @@ class Module {
 
  public:
 
-  // Construct a stable::Tensor from an AtenTensorHandle (ATH)
-  // Steals ownership from the ATH
-  explicit Module(ModuleHandle m)
-      : m_(m, [](ModuleHandle m) {
-          TORCH_ERROR_CODE_CHECK(torch_delete_module_object(m));
-        }) {}
+  explicit Module(const std::string& package_path, const std::string& model_name) {
+    ModuleHandle m = nullptr;
+    auto err = experimental_torch_load_module_from_file(package_path.c_str(), package_path.size(), model_name.c_str(), model_name.size(), &m);
+    m_ = std::shared_ptr<ModuleOpaque>(m, [](ModuleHandle m) {
+      auto err = experimental_torch_delete_module_object(m);
+    });
+  }
 
-  // Copy and move constructors can be default cuz the underlying handle is a
+  // Copy and move constructors can be default because the underlying handle is a
   // shared_ptr
   Module(const Module& other) = default;
   Module(Module&& other) noexcept = default;
 
-  // Copy and move assignment operators can be default cuz the underlying handle
+  // Copy and move assignment operators can be default because the underlying handle
   // is a shared_ptr
   Module& operator=(const Module& other) = default;
   Module& operator=(Module&& other) noexcept = default;
@@ -36,18 +36,14 @@ class Module {
   // Destructor can be default: shared ptr has custom deletion logic
   ~Module() = default;
 
-  // Returns a borrowed reference to the ModuleHandle
-  ModuleHandle get() const {
-    return m_.get();
-  }
-
-  torch::stable::Tensor forward_flattened(torch::stable::Tensor arg) const {
-    AtenTensorHandle out;
-    AtenTensorHandle arg_ath = arg.get();
-    TORCH_ERROR_CODE_CHECK(torch_module_forward_flattened(m_.get(), arg_ath, &out));
-    return torch::stable::Tensor(out);
+  std::vector<TypedStableIValue> forward_flattened(const std::vector<TypedStableIValue>& args) const {
+    uint64_t num_outs = 0;
+    auto err = experimental_torch_module_num_outputs(m_.get(), &num_outs);
+    std::vector<TypedStableIValue> ret_value(num_outs);
+    err = experimental_torch_module_forward_flattened(m_.get(), args.data(), args.size(), ret_value.data(), num_outs);
+    return ret_value;
   }
 
 };
 
-} // namespace torch::stable
+} // namespace torch::executorch::experimental

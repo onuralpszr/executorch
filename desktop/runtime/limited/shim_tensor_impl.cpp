@@ -244,11 +244,17 @@ __attribute__((__visibility__("default"))) int32_t aoti_torch_dtype_float32() {
 
 AOTITorchError aoti_torch_delete_tensor_object(AtenTensorHandle tensor) {
   std::cout << "Deleting " << tensor << " in the limited runtime" << std::endl;
+  bool found = false;
   for (auto it = tensors.begin(); it != tensors.end(); ++it) {
     if (it->get() == tensor) {
       tensors.erase(it);
+      found = true;
       break; // Exit the loop once the element is found and removed
     }
+  }
+  if (!found) {
+    std::cout << "Tensor " << tensor << " not found in the limited runtime";
+    delete tensor;
   }
   return Error::Ok;
 }
