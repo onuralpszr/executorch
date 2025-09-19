@@ -921,6 +921,7 @@ jobs:
         echo "key is $SECRET_SAMSUNG_AI_LITECORE_KEY"
 
         # Setup Samsung SDK (AI Lite Core) and install enn backend
+        export SAMSUNG_AI_LITECORE_KEY=$SECRET_SAMSUNG_AI_LITECORE_KEY
         source .ci/scripts/setup-samsung-linux-deps.sh
 
         # Test models serially
